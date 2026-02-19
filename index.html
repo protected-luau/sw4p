@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SW4P - KeySystem [PROTECTED]</title>
     <style>
+        /* CSS Tetap Sama Seperti Sebelumnya */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', Courier, monospace; }
         body { min-height: 100vh; background: #000; color: #0f0; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
         #matrixCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.4; pointer-events: none; }
@@ -13,157 +14,131 @@
         h1 { font-size: 2.8rem; font-weight: bold; letter-spacing: 6px; text-transform: uppercase; text-shadow: 0 0 15px #0f0, 0 0 30px #0f0; margin-bottom: 0.25rem; }
         .sub { font-size: 1rem; color: #8f8; margin-bottom: 1.5rem; letter-spacing: 3px; }
         .access-denied { background: #1a0a0a; border: 2px solid #f00; border-radius: 16px; padding: 2rem; margin: 1rem 0; color: #f88; box-shadow: 0 0 30px #f00; }
-        .access-denied h2 { font-size: 2rem; color: #f00; text-shadow: 0 0 15px #f00; margin-bottom: 1rem; }
-        .access-denied .icon { font-size: 4rem; margin-bottom: 1rem; }
         .access-granted { background: #0a1f0a; border: 2px solid #0f0; border-radius: 20px; padding: 1.5rem; margin: 1rem 0; }
         .key-box { background: #021002; border: 2px solid #0f0; border-radius: 16px; padding: 1.5rem; margin: 1rem 0; cursor: pointer; transition: all 0.2s; }
-        .key-box:hover { transform: scale(1.02); box-shadow: 0 0 30px #0f0; }
-        .key-display { font-size: 1.4rem; font-weight: bold; color: #0f0; word-break: break-all; text-shadow: 0 0 10px #0f0; }
-        .copy-hint { font-size: 0.8rem; color: #8f8; margin-top: 8px; }
-        .status-box { background: #021002; border: 1px solid #0f0; border-radius: 30px; padding: 0.8rem 1.5rem; margin: 1rem 0; font-size: 0.9rem; }
-        .timer-area { background: #021002; border-radius: 40px; padding: 0.8rem 1.5rem; margin: 1rem 0; border: 1px solid #0f0; display: inline-block; font-size: 1.6rem; font-weight: bold; box-shadow: 0 0 15px #0f0; }
-        .roblox-script-box { background: #0a0f1a; border: 1px solid #44f; border-radius: 12px; padding: 1rem; margin: 1rem 0; text-align: left; font-family: 'Courier New', monospace; font-size: 0.9rem; color: #88f; white-space: pre-wrap; word-break: break-all; }
-        .btn { background: transparent; border: 2px solid #0f0; color: #0f0; font-size: 1.2rem; padding: 0.8rem 2rem; border-radius: 40px; cursor: pointer; transition: all 0.2s; margin: 0.5rem; }
-        .btn:hover { background: #0f0; color: #000; box-shadow: 0 0 30px #0f0; }
-        .btn-danger { border-color: #f00; color: #f00; }
-        .btn-danger:hover { background: #f00; color: #000; box-shadow: 0 0 30px #f00; }
+        .key-display { font-size: 1.4rem; font-weight: bold; color: #0f0; word-break: break-all; }
+        .timer-area { background: #021002; border-radius: 40px; padding: 0.8rem 1.5rem; margin: 1rem 0; border: 1px solid #0f0; font-size: 1.6rem; font-weight: bold; }
+        .btn-danger { border: 2px solid #f00; color: #f00; background: transparent; padding: 0.8rem 2rem; border-radius: 40px; cursor: pointer; margin-top: 10px; }
         .hidden { display: none !important; }
-        .user-agent { font-size: 0.7rem; color: #353; margin-top: 1rem; }
     </style>
 </head>
 <body>
     <canvas id="matrixCanvas"></canvas>
-
     <div class="glass-panel">
         <h1>SW4P</h1>
         <div class="sub">🔐 PROTECTED KEY SYSTEM 🔐</div>
 
         <div id="accessDeniedView" class="access-denied">
-            <div class="icon">⛔</div>
             <h2>ACCESS DENIED</h2>
-            <p>This site can only be accessed via the Roblox script!</p>
-            <p style="margin: 1rem 0; font-size: 1rem;">Please run the script to get the correct link.</p>
+            <p>Session invalid or expired.</p>
+            <p>Please get a new link from the Roblox script.</p>
         </div>
 
         <div id="accessGrantedView" class="hidden">
             <div class="access-granted">
-                <div style="font-size:1.2rem; margin-bottom:0.5rem;">✅ ACCESS GRANTED</div>
-                
-                <div class="key-box" id="keyBox" onclick="copyKey()">
-                    <div id="keyOutput" class="key-display">[LOADING KEY...]</div>
-                    <div class="copy-hint">📋 Click key to copy</div>
+                <div>✅ ACCESS GRANTED</div>
+                <div class="key-box" onclick="copyKey()">
+                    <div id="keyOutput" class="key-display">LOADING...</div>
+                    <div style="font-size: 0.7rem; color: #8f8; margin-top: 5px;">📋 Click to copy</div>
                 </div>
-
-                <div class="status-box" id="sessionInfo">
-                    Status: <span id="sessionIdDisplay">Key Generated</span>
-                </div>
-
-                <div class="timer-label">⏳ KEY EXPIRES IN</div>
+                <div style="margin-top: 10px;">⏳ EXPIRES IN:</div>
                 <div class="timer-area" id="timerDisplay">01:00:00</div>
-
-                <button class="btn btn-danger" id="logoutBtn" onclick="window.location.href = window.location.pathname;">CLOSE PAGE</button>
+                <button class="btn-danger" onclick="exitSession()">EXPIRE LINK</button>
             </div>
-        </div>
-
-        <div class="user-agent" id="userAgent">
-            🔒 Protected Mode • Roblox verification required
         </div>
     </div>
 
     <script>
-        // Matrix Background Effect
-        (function() {
-            const canvas = document.getElementById('matrixCanvas');
-            const ctx = canvas.getContext('2d');
-            let width, height;
-            let drops = [];
-            const fontSize = 16;
-            function resizeCanvas() { width = window.innerWidth; height = window.innerHeight; canvas.width = width; canvas.height = height; const columns = Math.floor(width / fontSize); drops = []; for (let i = 0; i < columns; i++) { drops[i] = Math.floor(Math.random() * -height); } }
-            const chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ$%#@&+=";
-            function drawMatrix() { ctx.fillStyle = 'rgba(0, 0, 0, 0.045)'; ctx.fillRect(0, 0, width, height); ctx.font = fontSize + 'px "Courier New", monospace'; for (let i = 0; i < drops.length; i++) { const char = chars[Math.floor(Math.random() * chars.length)]; const x = i * fontSize; const y = drops[i] * fontSize; if (y < height && y > 0) { if (i % 3 === 0) ctx.fillStyle = '#0f0'; else if (i % 5 === 0) ctx.fillStyle = '#5f5'; else ctx.fillStyle = '#2f2'; ctx.fillText(char, x, y); } if (drops[i] * fontSize > height && Math.random() > 0.975) { drops[i] = 0; } drops[i]++; } requestAnimationFrame(drawMatrix); }
-            window.addEventListener('resize', resizeCanvas); resizeCanvas(); drawMatrix();
-        })();
+        // Matrix Effect (Simplified)
+        (function(){const c=document.getElementById('matrixCanvas'),x=c.getContext('2d');let w,h,d=[];function r(){w=window.innerWidth,h=window.innerHeight,c.width=w,c.height=h;const n=Math.floor(w/16);d=[];for(let i=0;i<n;i++)d[i]=Math.floor(Math.random()*-h)}const s="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";function dr(){x.fillStyle='rgba(0,0,0,0.05)',x.fillRect(0,0,w,h),x.font='16px monospace',x.fillStyle='#0f0';for(let i=0;i<d.length;i++){const t=s[Math.floor(Math.random()*s.length)];x.fillText(t,i*16,d[i]*16);if(d[i]*16>h&&Math.random()>0.975)d[i]=0;d[i]++}requestAnimationFrame(dr)}window.addEventListener('resize',r);r();dr()})();
 
-        // KEY SYSTEM LOGIC
-        const accessDeniedView = document.getElementById('accessDeniedView');
-        const accessGrantedView = document.getElementById('accessGrantedView');
-        const keyOutput = document.getElementById('keyOutput');
-        const timerDisplay = document.getElementById('timerDisplay');
-        
-        const ONE_HOUR_IN_SECONDS = 1 * 60 * 60; // 1 Hour
-        let currentKey = null;
-        let timeLeft = ONE_HOUR_IN_SECONDS;
-        let timerInterval;
-
-        // Generate Time-Based Key (Syncs with Roblox)
-        function generateTimeBasedKey() {
-            const date = new Date();
-            // Use UTC Time for universal sync
-            const seed = date.getUTCFullYear().toString() + date.getUTCMonth() + date.getUTCDate() + date.getUTCHours();
-            
-            // Generate 20 characters based on time seed
-            let randomPart = "";
-            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            
-            // Simple Pseudo-Random based on the hour's seed
-            // Ensures the generated key remains the same throughout the hour
-            let mathSeed = parseInt(seed);
-            for (let i = 0; i < 20; i++) {
-                mathSeed = (mathSeed * 9301 + 49297) % 233280;
-                let rnd = mathSeed / 233280;
-                randomPart += chars[Math.floor(rnd * chars.length)];
-            }
-            return "SW4P_" + randomPart;
-        }
-
-        // Check URL Parameters (Reads ?session=)
+        // LOGIKA KEY SYSTEM ANTI-REFRESH
         const urlParams = new URLSearchParams(window.location.search);
         const sessionParam = urlParams.get('session');
+        const storageKey = "sw4p_session_time";
+        const storageId = "sw4p_session_id";
+        
+        let timeLeft;
+        let timerInterval;
 
-        // If session parameter exists (and matches Roblox GUID length)
-        if (sessionParam && sessionParam.length > 10) {
-            accessDeniedView.classList.add('hidden');
-            accessGrantedView.classList.remove('hidden');
-            
-            currentKey = generateTimeBasedKey();
-            keyOutput.innerText = currentKey;
-            
-            startTimer();
-        } else {
-            // Block access if no valid parameter
-            accessDeniedView.classList.remove('hidden');
-            accessGrantedView.classList.add('hidden');
+        function generateKey() {
+            const date = new Date();
+            const seed = date.getUTCFullYear().toString() + date.getUTCMonth() + date.getUTCDate() + date.getUTCHours();
+            let mathSeed = parseInt(seed);
+            let res = "";
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            for (let i = 0; i < 20; i++) {
+                mathSeed = (mathSeed * 9301 + 49297) % 233280;
+                res += chars[Math.floor((mathSeed / 233280) * chars.length)];
+            }
+            return "SW4P_" + res;
         }
 
-        window.copyKey = function() {
-            if (currentKey) {
-                navigator.clipboard.writeText(currentKey);
-                keyOutput.style.color = '#fff';
-                setTimeout(() => keyOutput.style.color = '#0f0', 200);
-                alert("Key copied successfully!");
+        function init() {
+            const savedId = localStorage.getItem(storageId);
+            
+            // Validasi: Harus ada session di URL ATAU session yang tersimpan sama dengan di URL
+            if (sessionParam) {
+                if (sessionParam !== savedId) {
+                    // Jika session baru masuk, reset timer ke 1 jam
+                    localStorage.setItem(storageId, sessionParam);
+                    timeLeft = 3600;
+                    localStorage.setItem(storageKey, timeLeft);
+                } else {
+                    // Jika session sama (refresh), ambil waktu tersisa
+                    timeLeft = parseInt(localStorage.getItem(storageKey)) || 3600;
+                }
+                
+                showGranted();
+            } else {
+                showDenied();
             }
-        };
+        }
 
-        function formatTime(seconds) {
-            const hrs = Math.floor(seconds / 3600);
-            const mins = Math.floor((seconds % 3600) / 60);
-            const secs = seconds % 60;
-            return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        function showGranted() {
+            document.getElementById('accessDeniedView').classList.add('hidden');
+            document.getElementById('accessGrantedView').classList.remove('hidden');
+            document.getElementById('keyOutput').innerText = generateKey();
+            startTimer();
+        }
+
+        function showDenied() {
+            document.getElementById('accessDeniedView').classList.remove('hidden');
+            document.getElementById('accessGrantedView').classList.add('hidden');
+            localStorage.clear();
         }
 
         function startTimer() {
-            if (timerInterval) clearInterval(timerInterval);
-            
+            updateDisplay();
             timerInterval = setInterval(() => {
-                if (timeLeft > 0) {
-                    timeLeft--;
-                    timerDisplay.innerText = formatTime(timeLeft);
-                } else {
-                    alert('Key expired! Please get a new key.');
-                    window.location.href = window.location.pathname; // Reload without parameters
+                timeLeft--;
+                localStorage.setItem(storageKey, timeLeft);
+                updateDisplay();
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    exitSession();
                 }
             }, 1000);
         }
+
+        function updateDisplay() {
+            const m = Math.floor(timeLeft / 60);
+            const s = timeLeft % 60;
+            document.getElementById('timerDisplay').innerText = 
+                `00:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+
+        window.copyKey = function() {
+            navigator.clipboard.writeText(document.getElementById('keyOutput').innerText);
+            alert("Key copied!");
+        };
+
+        window.exitSession = function() {
+            localStorage.clear();
+            window.location.href = window.location.pathname; // Buang parameter URL
+        };
+
+        init();
     </script>
 </body>
 </html>
