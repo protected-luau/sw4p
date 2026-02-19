@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SW4P - KeySystem [PROTECTED]</title>
     <style>
-        /* Gaya CSS tidak diubah, tetap sama seperti sebelumnya untuk menghemat tempat di sini */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', Courier, monospace; }
         body { min-height: 100vh; background: #000; color: #0f0; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
         #matrixCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.4; pointer-events: none; }
@@ -42,8 +41,8 @@
         <div id="accessDeniedView" class="access-denied">
             <div class="icon">⛔</div>
             <h2>ACCESS DENIED</h2>
-            <p>Situs ini hanya bisa diakses lewat script Roblox!</p>
-            <p style="margin: 1rem 0; font-size: 1rem;">Silakan jalankan script untuk mendapatkan link yang benar.</p>
+            <p>This site can only be accessed via the Roblox script!</p>
+            <p style="margin: 1rem 0; font-size: 1rem;">Please run the script to get the correct link.</p>
         </div>
 
         <div id="accessGrantedView" class="hidden">
@@ -62,7 +61,7 @@
                 <div class="timer-label">⏳ KEY EXPIRES IN</div>
                 <div class="timer-area" id="timerDisplay">01:00:00</div>
 
-                <button class="btn btn-danger" id="logoutBtn" onclick="window.location.href = window.location.pathname;">TUTUP HALAMAN</button>
+                <button class="btn btn-danger" id="logoutBtn" onclick="window.location.href = window.location.pathname;">CLOSE PAGE</button>
             </div>
         </div>
 
@@ -72,7 +71,7 @@
     </div>
 
     <script>
-        // Efek Matrix Background (Tetap sama)
+        // Matrix Background Effect
         (function() {
             const canvas = document.getElementById('matrixCanvas');
             const ctx = canvas.getContext('2d');
@@ -85,29 +84,29 @@
             window.addEventListener('resize', resizeCanvas); resizeCanvas(); drawMatrix();
         })();
 
-        // LOGIKA KEY SYSTEM
+        // KEY SYSTEM LOGIC
         const accessDeniedView = document.getElementById('accessDeniedView');
         const accessGrantedView = document.getElementById('accessGrantedView');
         const keyOutput = document.getElementById('keyOutput');
         const timerDisplay = document.getElementById('timerDisplay');
         
-        const ONE_HOUR_IN_SECONDS = 1 * 60 * 60; // Diubah jadi 1 Jam
+        const ONE_HOUR_IN_SECONDS = 1 * 60 * 60; // 1 Hour
         let currentKey = null;
         let timeLeft = ONE_HOUR_IN_SECONDS;
         let timerInterval;
 
-        // Fungsi Generate Key Berdasarkan Jam (Agar sinkron dengan Roblox)
+        // Generate Time-Based Key (Syncs with Roblox)
         function generateTimeBasedKey() {
             const date = new Date();
-            // Menggunakan Jam UTC agar sama di semua zona waktu
+            // Use UTC Time for universal sync
             const seed = date.getUTCFullYear().toString() + date.getUTCMonth() + date.getUTCDate() + date.getUTCHours();
             
-            // Generate 20 karakter berdasarkan seed waktu
+            // Generate 20 characters based on time seed
             let randomPart = "";
             const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             
-            // Kita pakai Simple Pseudo-Random berdasarkan seed jam tersebut
-            // Ini memastikan selama 1 jam, key yang tergenerate tetap sama
+            // Simple Pseudo-Random based on the hour's seed
+            // Ensures the generated key remains the same throughout the hour
             let mathSeed = parseInt(seed);
             for (let i = 0; i < 20; i++) {
                 mathSeed = (mathSeed * 9301 + 49297) % 233280;
@@ -117,11 +116,11 @@
             return "SW4P_" + randomPart;
         }
 
-        // Cek URL Parameter (Diubah jadi membaca ?session=)
+        // Check URL Parameters (Reads ?session=)
         const urlParams = new URLSearchParams(window.location.search);
         const sessionParam = urlParams.get('session');
 
-        // Jika parameter session ada (dan panjangnya sesuai format GUID Roblox)
+        // If session parameter exists (and matches Roblox GUID length)
         if (sessionParam && sessionParam.length > 10) {
             accessDeniedView.classList.add('hidden');
             accessGrantedView.classList.remove('hidden');
@@ -131,7 +130,7 @@
             
             startTimer();
         } else {
-            // Jika tidak ada parameter, blokir akses
+            // Block access if no valid parameter
             accessDeniedView.classList.remove('hidden');
             accessGrantedView.classList.add('hidden');
         }
@@ -141,7 +140,7 @@
                 navigator.clipboard.writeText(currentKey);
                 keyOutput.style.color = '#fff';
                 setTimeout(() => keyOutput.style.color = '#0f0', 200);
-                alert("Key berhasil di-copy!");
+                alert("Key copied successfully!");
             }
         };
 
@@ -160,8 +159,8 @@
                     timeLeft--;
                     timerDisplay.innerText = formatTime(timeLeft);
                 } else {
-                    alert('Key expired! Silakan ambil key baru.');
-                    window.location.href = window.location.pathname; // Reload tanpa parameter
+                    alert('Key expired! Please get a new key.');
+                    window.location.href = window.location.pathname; // Reload without parameters
                 }
             }, 1000);
         }
