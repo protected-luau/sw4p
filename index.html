@@ -3,117 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SW4P - KeySystem [PROTECTED]</title>
+    <title>SW4P - KeySystem [STRICT MODE]</title>
     <style>
-        /* CSS Tetap Sama Seperti Sebelumnya */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Courier New', Courier, monospace; }
         body { min-height: 100vh; background: #000; color: #0f0; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
         #matrixCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.4; pointer-events: none; }
-        .glass-panel { position: relative; z-index: 10; background: rgba(0, 20, 0, 0.75); backdrop-filter: blur(4px); border: 2px solid #0f0; border-radius: 24px; padding: 2rem; width: 90%; max-width: 550px; box-shadow: 0 0 30px #0f08, 0 0 60px #0f04, inset 0 0 20px #0f0; animation: borderPulse 3s infinite; text-align: center; }
-        @keyframes borderPulse { 0% { border-color: #0f0; box-shadow: 0 0 30px #0f08, inset 0 0 15px #0f0; } 50% { border-color: #0c0; box-shadow: 0 0 50px #0f0c, inset 0 0 25px #0c0; } 100% { border-color: #0f0; box-shadow: 0 0 30px #0f08, inset 0 0 15px #0f0; } }
-        h1 { font-size: 2.8rem; font-weight: bold; letter-spacing: 6px; text-transform: uppercase; text-shadow: 0 0 15px #0f0, 0 0 30px #0f0; margin-bottom: 0.25rem; }
-        .sub { font-size: 1rem; color: #8f8; margin-bottom: 1.5rem; letter-spacing: 3px; }
-        .access-denied { background: #1a0a0a; border: 2px solid #f00; border-radius: 16px; padding: 2rem; margin: 1rem 0; color: #f88; box-shadow: 0 0 30px #f00; }
-        .access-granted { background: #0a1f0a; border: 2px solid #0f0; border-radius: 20px; padding: 1.5rem; margin: 1rem 0; }
-        .key-box { background: #021002; border: 2px solid #0f0; border-radius: 16px; padding: 1.5rem; margin: 1rem 0; cursor: pointer; transition: all 0.2s; }
-        .key-display { font-size: 1.4rem; font-weight: bold; color: #0f0; word-break: break-all; }
-        .timer-area { background: #021002; border-radius: 40px; padding: 0.8rem 1.5rem; margin: 1rem 0; border: 1px solid #0f0; font-size: 1.6rem; font-weight: bold; }
-        .btn-danger { border: 2px solid #f00; color: #f00; background: transparent; padding: 0.8rem 2rem; border-radius: 40px; cursor: pointer; margin-top: 10px; }
+        .glass-panel { position: relative; z-index: 10; background: rgba(0, 20, 0, 0.85); backdrop-filter: blur(8px); border: 2px solid #0f0; border-radius: 24px; padding: 2.5rem; width: 90%; max-width: 500px; box-shadow: 0 0 30px #0f08; text-align: center; }
+        h1 { font-size: 3rem; font-weight: bold; letter-spacing: 8px; text-shadow: 0 0 15px #0f0; margin-bottom: 0.5rem; }
+        .sub { font-size: 0.9rem; color: #8f8; margin-bottom: 2rem; letter-spacing: 2px; }
+        .access-denied { background: #1a0505; border: 1px solid #f00; padding: 2rem; border-radius: 15px; color: #f88; }
+        .access-granted { background: #051a05; border: 1px solid #0f0; padding: 2rem; border-radius: 15px; }
+        .key-box { background: #000; border: 1px dashed #0f0; padding: 1.2rem; margin: 1.5rem 0; cursor: pointer; transition: 0.3s; position: relative; }
+        .key-box:hover { background: #0f01; box-shadow: 0 0 15px #0f04; }
+        .key-display { font-size: 1.2rem; font-weight: bold; color: #0f0; word-break: break-all; letter-spacing: 1px; }
+        .timer-area { font-size: 2rem; font-weight: bold; margin: 10px 0; color: #fff; text-shadow: 0 0 10px #0f0; }
+        .btn-exit { background: transparent; border: 1px solid #f00; color: #f00; padding: 8px 20px; border-radius: 20px; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        .btn-exit:hover { background: #f00; color: #000; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
     <canvas id="matrixCanvas"></canvas>
+
     <div class="glass-panel">
         <h1>SW4P</h1>
-        <div class="sub">🔐 PROTECTED KEY SYSTEM 🔐</div>
+        <div class="sub">UNBREAKABLE KEY SYSTEM</div>
 
-        <div id="accessDeniedView" class="access-denied">
-            <h2>ACCESS DENIED</h2>
-            <p>Session invalid or expired.</p>
-            <p>Please get a new link from the Roblox script.</p>
+        <div id="accessDeniedView" class="access-denied hidden">
+            <div style="font-size: 3rem; margin-bottom: 10px;">🚫</div>
+            <h2 style="color: #f55;">INVALID SESSION</h2>
+            <p>Access denied. Please generate a new link from the Roblox script.</p>
         </div>
 
-        <div id="accessGrantedView" class="hidden">
-            <div class="access-granted">
-                <div>✅ ACCESS GRANTED</div>
-                <div class="key-box" onclick="copyKey()">
-                    <div id="keyOutput" class="key-display">LOADING...</div>
-                    <div style="font-size: 0.7rem; color: #8f8; margin-top: 5px;">📋 Click to copy</div>
-                </div>
-                <div style="margin-top: 10px;">⏳ EXPIRES IN:</div>
-                <div class="timer-area" id="timerDisplay">01:00:00</div>
-                <button class="btn-danger" onclick="exitSession()">EXPIRE LINK</button>
+        <div id="accessGrantedView" class="access-granted hidden">
+            <div style="color: #0f0; font-weight: bold;">[ ACCESS GRANTED ]</div>
+            
+            <div class="key-box" onclick="copyKey()">
+                <div id="keyOutput" class="key-display">GENERATING...</div>
+                <div style="font-size: 0.7rem; color: #8f8; margin-top: 8px;">(Click to Copy Key)</div>
             </div>
+
+            <div style="font-size: 0.8rem; color: #888; margin-bottom: 5px;">TIME REMAINING</div>
+            <div class="timer-area" id="timerDisplay">01:00:00</div>
+            
+            <button class="btn-exit" onclick="exitSession()">EXPIRE SESSION</button>
         </div>
     </div>
 
     <script>
-        // Matrix Effect (Simplified)
-        (function(){const c=document.getElementById('matrixCanvas'),x=c.getContext('2d');let w,h,d=[];function r(){w=window.innerWidth,h=window.innerHeight,c.width=w,c.height=h;const n=Math.floor(w/16);d=[];for(let i=0;i<n;i++)d[i]=Math.floor(Math.random()*-h)}const s="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";function dr(){x.fillStyle='rgba(0,0,0,0.05)',x.fillRect(0,0,w,h),x.font='16px monospace',x.fillStyle='#0f0';for(let i=0;i<d.length;i++){const t=s[Math.floor(Math.random()*s.length)];x.fillText(t,i*16,d[i]*16);if(d[i]*16>h&&Math.random()>0.975)d[i]=0;d[i]++}requestAnimationFrame(dr)}window.addEventListener('resize',r);r();dr()})();
+        // --- MATRIX BACKGROUND EFFECT ---
+        (function(){const c=document.getElementById('matrixCanvas'),ctx=c.getContext('2d');let w,h,drops=[];function resize(){w=window.innerWidth;h=window.innerHeight;c.width=w;c.height=h;const cols=Math.floor(w/16);drops=[];for(let i=0;i<cols;i++)drops[i]=Math.floor(Math.random()*-h)}const chars="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";function draw(){ctx.fillStyle='rgba(0,0,0,0.05)',ctx.fillRect(0,0,w,h),ctx.font='16px monospace',ctx.fillStyle='#0f0';for(let i=0;i<drops.length;i++){const txt=chars[Math.floor(Math.random()*chars.length)];ctx.fillText(txt,i*16,drops[i]*16);if(drops[i]*16>h&&Math.random()>0.975)drops[i]=0;drops[i]++}requestAnimationFrame(draw)}window.addEventListener('resize',resize);resize();draw()})();
 
-        // LOGIKA KEY SYSTEM ANTI-REFRESH
+        // --- STRICT KEY SYSTEM LOGIC ---
         const urlParams = new URLSearchParams(window.location.search);
         const sessionParam = urlParams.get('session');
-        const storageKey = "sw4p_session_time";
-        const storageId = "sw4p_session_id";
-        
+        const ST_TIME = "sw4p_time";
+        const ST_ID = "sw4p_id";
+
         let timeLeft;
         let timerInterval;
 
-        function generateKey() {
-            const date = new Date();
-            const seed = date.getUTCFullYear().toString() + date.getUTCMonth() + date.getUTCDate() + date.getUTCHours();
-            let mathSeed = parseInt(seed);
-            let res = "";
-            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            for (let i = 0; i < 20; i++) {
-                mathSeed = (mathSeed * 9301 + 49297) % 233280;
-                res += chars[Math.floor((mathSeed / 233280) * chars.length)];
+        // Rumus Hash Strict (Sama dengan Luau)
+        function generateStrictKey(session) {
+            const hour = new Date().getUTCHours();
+            const secretSeed = session + hour.toString();
+            
+            let hash = 0;
+            for (let i = 0; i < secretSeed.length; i++) {
+                hash = ((hash << 5) - hash) + secretSeed.charCodeAt(i);
+                hash |= 0; 
             }
-            return "SW4P_" + res;
+            
+            let seedValue = Math.abs(hash);
+            const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            let result = "";
+            
+            for (let i = 0; i < 16; i++) {
+                seedValue = (seedValue * 9301 + 49297) % 233280;
+                result += chars[Math.floor((seedValue / 233280) * chars.length)];
+            }
+            return "SW4P_" + result;
         }
 
         function init() {
-            const savedId = localStorage.getItem(storageId);
+            const savedId = localStorage.getItem(ST_ID);
             
-            // Validasi: Harus ada session di URL ATAU session yang tersimpan sama dengan di URL
             if (sessionParam) {
+                // Jika session ID di URL berbeda dengan yang di-save (Link Baru)
                 if (sessionParam !== savedId) {
-                    // Jika session baru masuk, reset timer ke 1 jam
-                    localStorage.setItem(storageId, sessionParam);
-                    timeLeft = 3600;
-                    localStorage.setItem(storageKey, timeLeft);
+                    localStorage.setItem(ST_ID, sessionParam);
+                    timeLeft = 3600; // Reset 1 Jam
+                    localStorage.setItem(ST_TIME, timeLeft);
                 } else {
-                    // Jika session sama (refresh), ambil waktu tersisa
-                    timeLeft = parseInt(localStorage.getItem(storageKey)) || 3600;
+                    // Jika refresh halaman, ambil waktu tersisa
+                    timeLeft = parseInt(localStorage.getItem(ST_TIME)) || 3600;
                 }
-                
-                showGranted();
+                showUI(true);
             } else {
-                showDenied();
+                showUI(false);
             }
         }
 
-        function showGranted() {
-            document.getElementById('accessDeniedView').classList.add('hidden');
-            document.getElementById('accessGrantedView').classList.remove('hidden');
-            document.getElementById('keyOutput').innerText = generateKey();
-            startTimer();
-        }
-
-        function showDenied() {
-            document.getElementById('accessDeniedView').classList.remove('hidden');
-            document.getElementById('accessGrantedView').classList.add('hidden');
-            localStorage.clear();
+        function showUI(granted) {
+            if (granted) {
+                document.getElementById('accessGrantedView').classList.remove('hidden');
+                document.getElementById('keyOutput').innerText = generateStrictKey(sessionParam);
+                startTimer();
+            } else {
+                document.getElementById('accessDeniedView').classList.remove('hidden');
+                localStorage.clear();
+            }
         }
 
         function startTimer() {
-            updateDisplay();
+            updateTimerDisplay();
             timerInterval = setInterval(() => {
                 timeLeft--;
-                localStorage.setItem(storageKey, timeLeft);
-                updateDisplay();
+                localStorage.setItem(ST_TIME, timeLeft);
+                updateTimerDisplay();
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
                     exitSession();
@@ -121,21 +128,21 @@
             }, 1000);
         }
 
-        function updateDisplay() {
+        function updateTimerDisplay() {
             const m = Math.floor(timeLeft / 60);
             const s = timeLeft % 60;
-            document.getElementById('timerDisplay').innerText = 
-                `00:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            document.getElementById('timerDisplay').innerText = `00:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
         }
 
         window.copyKey = function() {
-            navigator.clipboard.writeText(document.getElementById('keyOutput').innerText);
-            alert("Key copied!");
+            const k = document.getElementById('keyOutput').innerText;
+            navigator.clipboard.writeText(k);
+            alert("Key Copied: " + k);
         };
 
         window.exitSession = function() {
             localStorage.clear();
-            window.location.href = window.location.pathname; // Buang parameter URL
+            window.location.href = window.location.pathname;
         };
 
         init();
