@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SW4P - KeySystem [PROTECTED]</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #000;
+            color: #0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #matrixCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .glass-panel {
+            position: relative;
+            z-index: 10;
+            background: rgba(0, 20, 0, 0.75);
+            backdrop-filter: blur(4px);
+            border: 2px solid #0f0;
+            border-radius: 24px;
+            padding: 2rem;
+            width: 90%;
+            max-width: 550px;
+            box-shadow: 0 0 30px #0f08, 0 0 60px #0f04, inset 0 0 20px #0f0;
+            animation: borderPulse 3s infinite;
+            text-align: center;
+        }
+
+        @keyframes borderPulse {
+            0% { border-color: #0f0; box-shadow: 0 0 30px #0f08, inset 0 0 15px #0f0; }
+            50% { border-color: #0c0; box-shadow: 0 0 50px #0f0c, inset 0 0 25px #0c0; }
+            100% { border-color: #0f0; box-shadow: 0 0 30px #0f08, inset 0 0 15px #0f0; }
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: bold;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            text-shadow: 0 0 15px #0f0, 0 0 30px #0f0;
+            margin-bottom: 0.25rem;
+        }
+
+        .sub {
+            font-size: 1rem;
+            color: #8f8;
+            margin-bottom: 1.5rem;
+            letter-spacing: 3px;
+        }
+
+        .access-denied {
+            background: #1a0a0a;
+            border: 2px solid #f00;
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 1rem 0;
+            color: #f88;
+            box-shadow: 0 0 30px #f00;
+        }
+
+        .access-denied h2 {
+            font-size: 2rem;
+            color: #f00;
+            text-shadow: 0 0 15px #f00;
+            margin-bottom: 1rem;
+        }
+
+        .access-denied .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .access-granted {
+            background: #0a1f0a;
+            border: 2px solid #0f0;
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .key-box {
+            background: #021002;
+            border: 2px solid #0f0;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .key-box:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px #0f0;
+        }
+
+        .key-display {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #0f0;
+            word-break: break-all;
+            text-shadow: 0 0 10px #0f0;
+        }
+
+        .copy-hint {
+            font-size: 0.8rem;
+            color: #8f8;
+            margin-top: 8px;
+        }
+
+        .status-box {
+            background: #021002;
+            border: 1px solid #0f0;
+            border-radius: 30px;
+            padding: 0.8rem 1.5rem;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        .timer-area {
+            background: #021002;
+            border-radius: 40px;
+            padding: 0.8rem 1.5rem;
+            margin: 1rem 0;
+            border: 1px solid #0f0;
+            display: inline-block;
+            font-size: 1.6rem;
+            font-weight: bold;
+            box-shadow: 0 0 15px #0f0;
+        }
+
+        .roblox-script-box {
+            background: #0a0f1a;
+            border: 1px solid #44f;
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1rem 0;
+            text-align: left;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #88f;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .btn {
+            background: transparent;
+            border: 2px solid #0f0;
+            color: #0f0;
+            font-size: 1.2rem;
+            padding: 0.8rem 2rem;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0.5rem;
+        }
+
+        .btn:hover {
+            background: #0f0;
+            color: #000;
+            box-shadow: 0 0 30px #0f0;
+        }
+
+        .btn-danger {
+            border-color: #f00;
+            color: #f00;
+        }
+
+        .btn-danger:hover {
+            background: #f00;
+            color: #000;
+            box-shadow: 0 0 30px #f00;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #0f0;
+            box-shadow: 0 0 10px #0f0;
+            animation: pulse 1s infinite;
+            margin-left: 8px;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.2; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0.2; transform: scale(1); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .user-agent {
+            font-size: 0.7rem;
+            color: #353;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrixCanvas"></canvas>
+
+    <div class="glass-panel">
+        <h1>SW4P</h1>
+        <div class="sub">🔐 PROTECTED KEY SYSTEM 🔐</div>
+
+        <div id="accessDeniedView" class="access-denied">
+            <div class="icon">⛔</div>
+            <h2>ACCESS DENIED</h2>
+            <p>This website cannot be opened directly!</p>
+            <p style="margin: 1rem 0; font-size: 1rem;">You must perform GETKEY through Roblox script first.</p>
+            
+            <div class="roblox-script-box" id="robloxScriptDisplay">
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+
+local sessionId = HttpService:GenerateGUID(false)
+local apiUrl = "https://api.sw4p.keysystem/request"
+
+local requestData = {
+    sessionId = sessionId,
+    playerId = Player.UserId,
+    playerName = Player.Name,
+    timestamp = tick()
+}
+
+local success, response = pcall(function()
+    return HttpService:PostAsync(apiUrl, HttpService:JSONEncode(requestData))
+end)
+
+if success then
+    print("Session ID: " .. sessionId)
+    print("Enter this Session ID on the website")
+else
+    print("Failed to request key")
+end
+            </div>
+
+            <div style="margin: 1rem 0;">
+                <input type="text" id="sessionInput" placeholder="ENTER SESSION ID" style="width:100%; padding:1rem; background:#0a0a0a; border:1px solid #0f0; color:#0f0; text-align:center; font-size:1.2rem; border-radius:30px;">
+            </div>
+
+            <button class="btn" id="verifySessionBtn" onclick="verifySession()">VERIFY SESSION</button>
+            
+            <div style="margin-top: 1rem; font-size:0.9rem; color:#f0f;">
+                🔑 Session ID is obtained from Roblox script
+            </div>
+        </div>
+
+        <div id="accessGrantedView" class="hidden">
+            <div class="access-granted">
+                <div style="font-size:1.2rem; margin-bottom:0.5rem;">✅ ACCESS GRANTED</div>
+                
+                <div class="key-box" id="keyBox" onclick="copyKey()">
+                    <div id="keyOutput" class="key-display">[LOADING KEY...]</div>
+                    <div class="copy-hint">📋 click key to copy</div>
+                </div>
+
+                <div class="status-box" id="sessionInfo">
+                    Session: <span id="sessionIdDisplay">-</span>
+                </div>
+
+                <div class="timer-label">⏳ KEY EXPIRES IN</div>
+                <div class="timer-area" id="timerDisplay">05:00:00</div>
+
+                <div class="roblox-script-box" id="robloxResultScript">
+local key = "SW4P_xxxxxxxxxxxxxxxxxxxx"
+print("Key obtained:", key)
+                </div>
+
+                <button class="btn btn-danger" id="logoutBtn" onclick="logout()">LOGOUT / NEW SESSION</button>
+            </div>
+        </div>
+
+        <div class="user-agent" id="userAgent">
+            🔒 Protected Mode • Roblox verification required
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            const canvas = document.getElementById('matrixCanvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let drops = [];
+            const fontSize = 16;
+
+            function resizeCanvas() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+                const columns = Math.floor(width / fontSize);
+                drops = [];
+                for (let i = 0; i < columns; i++) {
+                    drops[i] = Math.floor(Math.random() * -height);
+                }
+            }
+
+            const chars = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ$%#@&+=";
+
+            function drawMatrix() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.045)';
+                ctx.fillRect(0, 0, width, height);
+                ctx.font = fontSize + 'px "Courier New", monospace';
+
+                for (let i = 0; i < drops.length; i++) {
+                    const char = chars[Math.floor(Math.random() * chars.length)];
+                    const x = i * fontSize;
+                    const y = drops[i] * fontSize;
+
+                    if (y < height && y > 0) {
+                        if (i % 3 === 0) ctx.fillStyle = '#0f0';
+                        else if (i % 5 === 0) ctx.fillStyle = '#5f5';
+                        else ctx.fillStyle = '#2f2';
+                        ctx.fillText(char, x, y);
+                    }
+
+                    if (drops[i] * fontSize > height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+                requestAnimationFrame(drawMatrix);
+            }
+
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            drawMatrix();
+
+            const accessDeniedView = document.getElementById('accessDeniedView');
+            const accessGrantedView = document.getElementById('accessGrantedView');
+            const sessionInput = document.getElementById('sessionInput');
+            const sessionIdDisplay = document.getElementById('sessionIdDisplay');
+            const keyOutput = document.getElementById('keyOutput');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const robloxResultScript = document.getElementById('robloxResultScript');
+            
+            const FIVE_HOURS_IN_SECONDS = 5 * 60 * 60;
+            const KEY_PREFIX = "SW4P_";
+            
+            let currentKey = null;
+            let currentSessionId = null;
+            let timeLeft = FIVE_HOURS_IN_SECONDS;
+            let timerInterval;
+            
+            let validSessions = new Map();
+
+            function generateKey() {
+                const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+                let randomPart = "";
+                for (let i = 0; i < 20; i++) {
+                    randomPart += characters[Math.floor(Math.random() * characters.length)];
+                }
+                return KEY_PREFIX + randomPart;
+            }
+
+            window.robloxRequestKey = function(requestData) {
+                try {
+                    const { sessionId, playerId, playerName, timestamp } = requestData;
+                    
+                    const now = Date.now() / 1000;
+                    if (now - timestamp > 30) {
+                        return { success: false, error: "Request expired" };
+                    }
+                    
+                    const newKey = generateKey();
+                    
+                    validSessions.set(sessionId, {
+                        key: newKey,
+                        timestamp: now,
+                        playerId: playerId,
+                        playerName: playerName,
+                        used: false
+                    });
+                    
+                    setTimeout(() => {
+                        if (validSessions.has(sessionId) && !validSessions.get(sessionId).used) {
+                            validSessions.delete(sessionId);
+                        }
+                    }, 5 * 60 * 1000);
+                    
+                    return { 
+                        success: true, 
+                        message: "Session created. Verify on website.",
+                        sessionId: sessionId
+                    };
+                } catch (e) {
+                    return { success: false, error: e.message };
+                }
+            };
+
+            window.verifySession = function() {
+                const sessionId = sessionInput.value.trim();
+                
+                if (!sessionId) {
+                    alert('Enter Session ID from Roblox script!');
+                    return;
+                }
+                
+                if (validSessions.has(sessionId)) {
+                    const sessionData = validSessions.get(sessionId);
+                    
+                    sessionData.used = true;
+                    currentSessionId = sessionId;
+                    currentKey = sessionData.key;
+                    
+                    sessionIdDisplay.innerText = sessionId;
+                    keyOutput.innerText = currentKey;
+                    
+                    robloxResultScript.innerText = `local key = "${currentKey}"\nprint("Key obtained:", key)\n-- Player: ${sessionData.playerName}`;
+                    
+                    accessDeniedView.classList.add('hidden');
+                    accessGrantedView.classList.remove('hidden');
+                    
+                    timeLeft = FIVE_HOURS_IN_SECONDS;
+                    startTimer();
+                    
+                    validSessions.delete(sessionId);
+                    
+                } else {
+                    alert('Invalid or expired Session ID!\n\nMake sure you have run the Roblox script and the Session ID is still valid (5 minutes).');
+                }
+            };
+
+            window.copyKey = function() {
+                if (currentKey) {
+                    navigator.clipboard.writeText(currentKey);
+                    
+                    keyOutput.style.backgroundColor = '#0f02';
+                    setTimeout(() => keyOutput.style.backgroundColor = 'transparent', 200);
+                    
+                    robloxResultScript.innerText = `local key = "${currentKey}"\n-- Key copied to clipboard\n-- Paste in your executor`;
+                }
+            };
+
+            window.logout = function() {
+                currentSessionId = null;
+                currentKey = null;
+                sessionInput.value = '';
+                
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+                
+                accessGrantedView.classList.add('hidden');
+                accessDeniedView.classList.remove('hidden');
+            };
+
+            function formatTime(seconds) {
+                const hrs = Math.floor(seconds / 3600);
+                const mins = Math.floor((seconds % 3600) / 60);
+                const secs = seconds % 60;
+                return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            function updateTimerDisplay() {
+                timerDisplay.innerText = formatTime(timeLeft);
+            }
+
+            function startTimer() {
+                if (timerInterval) clearInterval(timerInterval);
+                
+                timerInterval = setInterval(() => {
+                    if (timeLeft > 0) {
+                        timeLeft--;
+                        updateTimerDisplay();
+                    } else {
+                        alert('Key expired! Request a new key through Roblox script.');
+                        logout();
+                    }
+                }, 1000);
+            }
+
+            window.simulateRobloxRequest = function() {
+                const testSession = 'TEST_' + Math.random().toString(36).substring(7);
+                const testData = {
+                    sessionId: testSession,
+                    playerId: 123456,
+                    playerName: 'TestPlayer',
+                    timestamp: Date.now() / 1000
+                };
+                
+                const result = window.robloxRequestKey(testData);
+                console.log('Roblox request result:', result);
+                console.log('Session ID for verification:', testSession);
+                alert(`[TEST] Session created: ${testSession}\nUse this for verification.`);
+                
+                sessionInput.value = testSession;
+            };
+
+            console.log('SW4P Protected Key System');
+            console.log('For testing: type simulateRobloxRequest() in console');
+        })();
+    </script>
+</body>
+</html>
